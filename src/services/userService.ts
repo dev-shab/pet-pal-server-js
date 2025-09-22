@@ -24,3 +24,22 @@ export const signUpUser = async (
 
   return { user, token };
 };
+
+export const loginUser = async (email: string, password: string) => {
+  const existingUser = await User.findOne({ email });
+  if (!existingUser) {
+    throw new Error("User does not exist");
+  }
+
+  const isPasswordValid = await bcrypt.compare(
+    password,
+    existingUser.passwordHash
+  );
+  if (!isPasswordValid) {
+    throw new Error("Invalid credentials");
+  }
+
+  const token = generateToken(existingUser._id.toString(), existingUser.role);
+
+  return { user: existingUser, token };
+};
