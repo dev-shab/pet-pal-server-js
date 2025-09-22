@@ -1,18 +1,25 @@
-import express from "express";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 import mongoose from "mongoose";
-import "dotenv/config";
+import { MONGOOSE_CONNECTION_STRING, PORT } from "@/utils/config.js";
+import userRouter from "@/routes/users.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-if (process.env.MONGOOSE_CONNECTION_STRING) {
-  mongoose.connect(process.env.MONGOOSE_CONNECTION_STRING).then(() => {
-    console.log("connected to DB");
-  });
-}
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  return res.status(200).send("Hello from PET PAL");
+mongoose.connect(MONGOOSE_CONNECTION_STRING).then(() => {
+  console.log("connected to DB");
+});
+
+app.use("/api/user/", userRouter);
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).send("Internal Server Error");
 });
 
 app.listen(PORT, () => {
