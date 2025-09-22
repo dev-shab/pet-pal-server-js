@@ -1,4 +1,4 @@
-import { signUp } from "@/controllers/userController.js";
+import { logout, signUp } from "@/controllers/userController.js";
 import { asyncHandler } from "@/utils/asyncHandler.js";
 import { Router } from "express";
 
@@ -98,5 +98,30 @@ const userRouter = Router();
  *                   example: User already exists
  */
 userRouter.post("/signup", asyncHandler(signUp));
+
+/**
+ * @swagger
+ * /user/logout:
+ *   post:
+ *     summary: Logout user
+ *     description: Clears the authentication cookie and logs out the user.
+ *     tags:
+ *       - Users
+ *     responses:
+ *       '200':
+ *         description: User logged out successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: User Logged out successfully
+ */
+userRouter.post("/logout", asyncHandler(logout));
 
 export default userRouter;

@@ -9,6 +9,12 @@ export const signUp = async (
   try {
     const { name, email, password, role } = req.body;
     const { user, token } = await signUpUser(name, email, password, role);
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
     res.status(201).json({
       success: true,
       message: "User created successfully",
@@ -19,10 +25,26 @@ export const signUp = async (
           email: user.email,
           role: user.role,
         },
-        token,
       },
     });
   } catch (error) {
-    next(error);
+    if (error instanceof Error && error.message === "User already exists") {
+      res.status(409).json({
+        success: false,
+        message: "A user with this email already exists",
+      });
+    } else {
+      next(error);
+    }
   }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+  });
+  res.status(200).json({
+    success: true,
+    message: "User Logged out successfully",
+  });
 };
