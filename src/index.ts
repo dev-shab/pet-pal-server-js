@@ -1,11 +1,30 @@
-import express from "express";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
+import mongoose from "mongoose";
+import { MONGOOSE_CONNECTION_STRING, PORT } from "@/utils/config.js";
+import userRouter from "@/routes/users.js";
+import { setupSwagger } from "@/utils/swagger.js";
 
 const app = express();
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  return res.status(200).send("Hello from PET PAL");
+setupSwagger(app);
+
+mongoose.connect(MONGOOSE_CONNECTION_STRING).then(() => {
+  console.log("connected to DB");
 });
 
-app.listen(3000, () => {
-  console.log("listening on port 3000");
+app.use("/api/v1/user/", userRouter);
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).send("Internal Server Error");
+});
+
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`);
+  console.log(`Swagger docs at http://localhost:${PORT}/api-docs`);
 });
