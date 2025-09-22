@@ -28,14 +28,7 @@ export const signUp = async (
       },
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "User already exists") {
-      res.status(409).json({
-        success: false,
-        message: "A user with this email already exists",
-      });
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 

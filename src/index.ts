@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { MONGOOSE_CONNECTION_STRING, PORT } from "@/utils/config.js";
 import userRouter from "@/routes/users.js";
 import { setupSwagger } from "@/utils/swagger.js";
+import ApiError from "@/utils/ApiError.js";
 
 const app = express();
 app.use(express.json());
@@ -19,9 +20,12 @@ mongoose.connect(MONGOOSE_CONNECTION_STRING).then(() => {
 
 app.use("/api/v1/user/", userRouter);
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
-  res.status(500).send("Internal Server Error");
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
 });
 
 app.listen(PORT, () => {

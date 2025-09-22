@@ -1,4 +1,5 @@
 import { User } from "@/models/user.js";
+import ApiError from "@/utils/ApiError.js";
 import { generateToken } from "@/utils/jwt.js";
 import bcrypt from "bcrypt";
 
@@ -10,7 +11,7 @@ export const signUpUser = async (
 ) => {
   const existing = await User.findOne({ email });
   if (existing) {
-    throw new Error("User already exists");
+    throw new ApiError("User already exists", 409);
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -28,7 +29,7 @@ export const signUpUser = async (
 export const loginUser = async (email: string, password: string) => {
   const existingUser = await User.findOne({ email });
   if (!existingUser) {
-    throw new Error("User does not exist");
+    throw new ApiError("User does not exist", 401);
   }
 
   const isPasswordValid = await bcrypt.compare(
@@ -36,7 +37,7 @@ export const loginUser = async (email: string, password: string) => {
     existingUser.passwordHash
   );
   if (!isPasswordValid) {
-    throw new Error("Invalid credentials");
+    throw new ApiError("Invalid credentials", 401);
   }
 
   const token = generateToken(existingUser._id.toString(), existingUser.role);
