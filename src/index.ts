@@ -6,16 +6,18 @@ import express, {
 import mongoose from "mongoose";
 import { MONGOOSE_CONNECTION_STRING, PORT } from "@/utils/config.js";
 import userRouter from "@/routes/users.js";
+import { setupSwagger } from "@/utils/swagger.js";
 
 const app = express();
-
 app.use(express.json());
+
+setupSwagger(app);
 
 mongoose.connect(MONGOOSE_CONNECTION_STRING).then(() => {
   console.log("connected to DB");
 });
 
-app.use("/api/user/", userRouter);
+app.use("/api/v1/user/", userRouter);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
@@ -24,4 +26,5 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
+  console.log(`Swagger docs at http://localhost:${PORT}/api-docs`);
 });
